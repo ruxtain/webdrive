@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    {% block meta %}{% endblock%}
+    <title>{% block title %}{% endblock %}</title>
+    {% block style %}{% endblock%}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/style.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+    {% block body %}{% endblock%}
+    </div>
+    {% block script %}{% endblock%}
+</body>
+</html>

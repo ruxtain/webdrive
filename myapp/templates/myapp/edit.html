@@ -1,0 +1,25 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block meta %}
+    <meta page="edit.html">
+{% endblock%}
+
+{% block title %}编辑文件{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper">
+    <h2>您正在编辑文件 <a href="{{ file.get_url }}">「{{ file.name }}」</a></h2>
+    <form method="POST" action="{% url 'myapp:edit' file.pk %}">
+    {% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+    <br>
+    <button class="btn">提交修改</button>
+    </form>
+</div>
+{% endblock %}

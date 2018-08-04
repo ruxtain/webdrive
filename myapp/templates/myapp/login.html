@@ -1,0 +1,59 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block meta %}
+    <meta charset="utf-8">
+    <meta page="login.html">
+{% endblock%}
+
+{% block title %}登录您的 Webdrive{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'myapp/css/login-signup.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper">
+    <h1>登录 Webdrive</h1>
+    <form method="POST" action="{% url 'myapp:login' %}">
+    {% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+    <p class="captcha"><img id="captcha" src="{% url 'myapp:captcha' %}" onclick="switch_captcha"></p>
+    <p><a href="{% url 'myapp:signup' %}" class="btn-signup">还没有注册？点击注册</a></p>
+    <button class="btn btn-login">登录</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+window.onload = function(){
+    var captcha = document.getElementById('captcha');
+    captcha.onclick = function(){
+        ran = Math.round(Math.random()*10000000);
+        captcha.src = '{% url 'myapp:captcha' %}?' + ran;
+    };
+};
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

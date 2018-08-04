@@ -1,0 +1,22 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block title %}注册您的 Webdrive 帐号{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'myapp/css/login-signup.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper"> 
+    <h1>注册 Webdrive</h1>
+    <form method="POST" action="{% url 'myapp:signup' %}">
+    {% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+    <p><a href="{% url 'myapp:login' %}" class="btn-login">已经注册？戳这里登录</a></p>
+    <button class="btn btn-signup">注册</button>
+    </form>
+</div>
+{% endblock %}

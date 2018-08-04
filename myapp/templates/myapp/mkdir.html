@@ -1,0 +1,25 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block meta %}
+    <meta page="mkdir.html">
+{% endblock%}
+
+{% block title %}创建目录{% endblock %}
+
+{% block style %}
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper">
+    <h2>创建子目录到 <a href="{% url 'myapp:detail' user.username directory.path %}"><u>{{ directory.name }}</u></a> 目录下：</h2>
+    <form method="POST" action="{% url 'myapp:mkdir' %}">
+    {% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+    <br>
+    <button class="btn">创建目录</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+/*登录页面*/
+
+div.inner-wrapper {
+    width: 280px;
+    margin: 0 auto;
+    /*background-color: red;*/
+}
+
+.btn-login {
+    margin: 0 auto;
+    width: 200px;
+}
+
+.btn-signup {
+    width: 200px;
+}

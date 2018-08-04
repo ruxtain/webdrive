@@ -1,0 +1,57 @@
+/*通用*/
+.inner-wrapper { width: 1000px; margin: 0 auto; }
+a { transition: 0.2s; } 
+a:hover { color: #6760ee; }
+
+/*用户信息模块*/
+
+div.user-info { background-color: #eeeeee; padding: 1px; }
+a.user-info { font-family: 'Helvetica Neue', Helvetica; font-weight: bold; }
+p.user-bar span { margin: 1px 15px; }
+span.username { font-size: 1.1em; padding-left: 10px;}
+
+/*文件上传模块*/
+
+div.upload-info { height: 60px; line-height: 60px; margin-left: 10px;}
+
+
+
+
+
+
+
+div.dir-info { background: #eeeeee; height: 50px; line-height: 50px; padding-left: 23px;}
+
+/*文件列表模块*/
+.file-info { padding: 20px; }
+.file-info li {line-height: 25px;}
+
+
+/*文件详情模块*/
+table.file tr td:first-child,table.file tr td:first-child{width:200px;}
+table.file th {text-align: left; background-color: #efefef;}
+div.buttons {float:left;}
+
+
+
+a.directory { color: #66f; font-weight: bold; }
+a.file { color: #333; }
+
+/*隐藏默认的选择文件按钮和文字*/
+#id_files {display: none;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

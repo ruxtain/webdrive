@@ -1,0 +1,123 @@
+{# 分成三块：用户信息，目录信息，文件列表 #}
+{% extends "myapp/base.html" %}
+{% load static %}
+{% load extra_filters %}
+
+{% block title %}{{ user.username | capitalize }}'s Webdrive{% endblock %}
+{% block meta %}<meta page="index.html">{% endblock %}
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'myapp/css/index.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper">
+    
+    <div class="header">
+        <h1>{{ user.username | capitalize }}'s Webdrive</h1>
+    </div>
+
+    <div class="user-info">
+        <p class="user-bar"> 
+            <span class="user-info username">{{ user.username }}</span>
+            <span class="user-info"><a  href="">设置</a></span>
+            <span class="user-info"><a href="{% url 'myapp:logout' %}">登出</a></span>
+            <span class="user-info">|</span>
+            {% if is_file %}
+                <span class="user-info"><a href="{% url 'myapp:edit' file.pk %}">编辑</a></span>
+                <span class="user-info"><a href="{% url 'myapp:download' file.pk %}">下载</a></span>
+            {% else %}
+                <span class="user-info"><a href="{% url 'myapp:mkdir' %}">新建目录</a></span>    
+            {% endif %}
+        </p>
+    </div>
+
+    {% if not is_file %}
+    <div class="upload-info">
+        <form enctype="multipart/form-data" method="post" action="{% url 'myapp:upload' %}">
+            {% csrf_token %}
+            {{ form }}
+            <span id="custom-text">未选择任何文件</span>
+            <button class="btn" id="custom-button">选择文件</button>
+            <button class="btn" id="custom-submit">上传文件</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="dir-info">
+        <span>您的位置：</span>
+        <span>
+            / <a href="{% url 'myapp:index' %}">{{ user.username }}</a>
+            {% if is_file %}
+                {% path file True %} 
+            {% else %}
+                {% path directory False %} 
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="file-info">
+
+        {% if is_file %}
+                <div class="preview">
+
+                    
+                </div>
+                <table class="file" align="left">
+                    <tr>
+                        <th>属性</th>
+                        <th>值</th>
+                    </tr>
+                    <tr>
+                        <td>文件名</td>
+                        <td>{{ file.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>文件大小</td>
+                        <td>{{ file.get_size }}</td>
+                    </tr>
+                    <tr>
+                        <td>上传时间</td>
+                        <td>{{ file.datetime }}</td>
+                    </tr>
+                    <tr>
+                        <td>上传者</td>
+                        <td><a href="">{{ file.owner }}</a></td>
+                    </tr>
+                    <tr>
+                        <td>SHA1 摘要</td>
+                        <td>{{ file.digest }}</td>
+                    </tr>                    
+                </table>
+        {%  else %}
+                <ul>
+                    {% for directory in directory.directory_set.all %}
+                        <li>
+                            <a  class="directory" href="{{ directory.get_url }}">{{ directory.name }}</a>
+                        </li>
+                    {% endfor %}
+
+                    {% for file in directory.file_set.all %}
+                        <li><a class="file" href="{{ file.get_url }}">{{ file.name }}</a></li>
+                    {% endfor %}
+                </ul>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+    {% if not is_file %}
+        <script type="text/javascript" src="{% static 'myapp/js/upload.js' %}"></script>
+    {% endif %}
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
