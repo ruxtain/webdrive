@@ -13,8 +13,8 @@ customSubmit.addEventListener("click", function() {
 realFileBtn.addEventListener("change", function() {
   if (realFileBtn.value) {
     // 用正则筛选出文件的 basename 注意要包含中文
-    customTxt.innerHTML = realFileBtn.value.match(/[\/\\]([\u4e00-\u9fa5\w\d\s\.\+\-(\)]+)$/)[1];
-    // customTxt.innerHTML = realFileBtn.value.match(/.+\\./)[0];
+    // customTxt.innerHTML = realFileBtn.value.match(/[\/\\]([\u4e00-\u9fa5\w\d\s\.\+\-(\)]+)$/)[1];
+    customTxt.innerHTML = realFileBtn.value.replace("C:\\fakepath\\", '');
   } else {
     customTxt.innerHTML = "未选择任何文件";
   }

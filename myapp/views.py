@@ -12,8 +12,9 @@ from .handles import (handle_uploaded_files, set_captcha_to_session,
                       get_session_data, set_session_data)
 from .forms import (LoginForm, SignupForm, UploadForm, 
                     EditForm, CreateDirectoryForm)
-from .models import Directory, File, get_media_abspath
+from .models import Directory, File, Link, get_media_abspath
 
+import mimetypes
 from io import BytesIO
 from urllib.parse import quote
 import os
@@ -202,14 +203,17 @@ def upload(request):
 @login_required
 def download(request, pk):
     """
-        下载中文名乱码需要解决
+
     """    
     file = get_object_or_404(File, pk=pk)
     buf = open(file.get_full_path(), 'rb')
-    response = StreamingHttpResponse(buf)
-    response['Content-Type'] = 'application/octet-stream'
+    response = HttpResponse(buf)
+    filetype = mimetypes.guess_type(file.name)[0]
+    if not filetype: # 无法识别的我就默认说它是二进制流
+        filetype = 'application/octet-stream'    
+    response['Content-Type'] = 'application/force-download'
     response['Content-Length'] = str(file.size)
-    response['Content-Disposition'] = 'attachment;filename="{}"'.format(quote(file.name))
+    response['Content-Disposition'] = 'attachment; filename={}'.format(quote(file.name))
     return response
 
 
@@ -236,6 +240,19 @@ def edit(request, pk):
 
     context = {'form': form, 'file': file}
     return render(request, 'myapp/edit.html', context)
+
+@login_required
+def delete(request, pk):
+    """
+        只是一个动作，不提供页面。表单由 edit view 提供。
+    """
+    dir_pk = get_session_data(request, 'directory')
+    directory = Directory.objects.get(pk=dir_pk)
+
+    file = get_object_or_404(File, pk=pk)
+    Link.minus_one(file) # 里面包含了删除动作
+
+    return redirect(directory.get_url())
 
 
 

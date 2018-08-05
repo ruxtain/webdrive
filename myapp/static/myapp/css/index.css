@@ -15,11 +15,6 @@ span.username { font-size: 1.1em; padding-left: 10px;}
 div.upload-info { height: 60px; line-height: 60px; margin-left: 10px;}
 
 
-
-
-
-
-
 div.dir-info { background: #eeeeee; height: 50px; line-height: 50px; padding-left: 23px;}
 
 /*文件列表模块*/
@@ -39,10 +34,6 @@ a.file { color: #333; }
 
 /*隐藏默认的选择文件按钮和文字*/
 #id_files {display: none;}
-
-
-
-
 
 
 

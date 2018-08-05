@@ -22,7 +22,7 @@
     </table>
     <p class="captcha"><img id="captcha" src="{% url 'myapp:captcha' %}" onclick="switch_captcha"></p>
     <p><a href="{% url 'myapp:signup' %}" class="btn-signup">还没有注册？点击注册</a></p>
-    <button class="btn btn-login">登录</button>
+    <button id="id_submit" class="btn btn-login">登录</button>
     </form>
 </div>
 {% endblock %}

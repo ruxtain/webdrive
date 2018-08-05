@@ -8,18 +8,21 @@
 {% block title %}创建目录{% endblock %}
 
 {% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'myapp/css/edit.css' %}">
 {% endblock %}
 
 {% block body %}
 <div class="inner-wrapper">
-    <h2>创建子目录到 <a href="{% url 'myapp:detail' user.username directory.path %}"><u>{{ directory.name }}</u></a> 目录下：</h2>
+    <h2>创建子目录到 <a class="directory" href="{{ directory.get_url }}">{{ directory.name }}</a> 目录下：</h2>
     <form method="POST" action="{% url 'myapp:mkdir' %}">
     {% csrf_token %}
     <table>
     {{ form }}
     </table>
     <br>
-    <button class="btn">创建目录</button>
+    <button class="btn">保存</button>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="{{ directory.get_url }}" class="btn">放弃</a>
     </form>
 </div>
 {% endblock %}

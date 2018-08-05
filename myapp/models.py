@@ -70,8 +70,6 @@ class File(models.Model):
     parent = models.ForeignKey(Directory, on_delete=models.CASCADE)
     digest = models.CharField(max_length=40) 
     path = models.CharField(max_length=4096, default='')
-    links = models.IntegerField(default=0)
-    origin = models.BooleanField(default=False)
     datetime = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -81,7 +79,7 @@ class File(models.Model):
         """ 文件的服务器路径 """
         return os.path.join(get_media_abspath(), self.digest)
 
-    def completely_remove(self):
+    def remove_from_disk(self):
         """ 
             删除磁盘上的文件，而不是只减少计数器+删除 File 对象 
             用于发现重复文件后，清除新添加的文件，保留用户的 File 对象，改写其 path 值
@@ -111,6 +109,65 @@ class File(models.Model):
         else:
             size = '{:.2f} Bytes'.format(size)
         return size
+
+
+class Link(models.Model):
+    """
+        记录文件的摘要和links数
+        当用户删除文件时，删掉文件对象，但是不从磁盘删除，
+        除非对应的 link 数为0，表示该 hash 值对应的所有文件已经删光，
+        此时，从磁盘删除文件
+
+        每次上传文件必然产生两种情况：
+            1. 产生一个新的 link 对象
+            2. links 值 + 1
+
+        之前把 links 属性放在 File，有一个问题，当记录 links 的文件被删除时，
+        这个值就丢失了
+    """
+    digest = models.CharField(max_length=40, primary_key=True) # 和 digest 绑定，而不是和文件绑定
+    links = models.IntegerField() # links 数
+
+    def __str__(self):
+        return str(self.links)
+
+    @classmethod
+    def add_one(cls, file):
+        """
+            新增文件后调用。使得计数器加一
+            如果对应的 digest 没有计数器，则创建计数器，并 links = 1
+        """
+        nums = File.objects.filter(digest=file.digest).count()
+        link_objects = cls.objects.filter(digest=file.digest)
+        if link_objects:
+            link = link_objects[0]
+            link.links = nums
+            link.save()
+        else:
+            link = cls.objects.create(digest=file.digest, links=nums) # nums 为1
+
+    @classmethod
+    def minus_one(cls, file):
+        """ 
+            删除文件后调用。使得计数器减一
+            如果对应的 digest 的计数器为 0，那么从磁盘删除掉这个文件
+        """
+        link = cls.objects.get(digest=file.digest)
+        link.links -= 1
+        
+        if link.links < 1:
+            file.remove_from_disk()
+            link.delete()
+        else:
+            link.save()
+
+        file.delete()
+
+
+
+
+
+
 
 
 

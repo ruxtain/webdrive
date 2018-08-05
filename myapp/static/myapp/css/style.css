@@ -35,6 +35,10 @@ a {
     outline: none;
 }
 
+.warning-btn:hover {
+    background-color: #ff9a9a;
+}
+
 input.input {
     font-size: 15px;
     border: 1px solid #ccc;

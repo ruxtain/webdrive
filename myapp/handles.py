@@ -8,10 +8,11 @@
 
 from django.conf import settings
 from django.db.models import F
-from .models import Directory, File, get_media_abspath
+from .models import Directory, File, Link, get_media_abspath
 import hashlib
 import uuid
 import os
+import re
 
 def handle_repetitive_file(file):
     """
@@ -21,23 +22,13 @@ def handle_repetitive_file(file):
         通过遍历看是否有重复路径，如果有重复，则返回带序号的 path
     """
 
-    # 同一个用户的重名文件
+    # 同一个用户的重名文件，与 digest 无关
     if File.objects.filter(owner=file.owner, path=file.path, name=file.name).count() > 1:
         base, ext = os.path.splitext(file.name)
         file.name = '{}_{}{}'.format(base, file.pk, ext)
+        file.save()
 
-    # 不同用户，相同文件，那么只给 links +1 而不占用两份空间
-    # 因为我都放在 media 下，所以 identical 文件直接覆盖（操作系统自动处理），不需要我做处理
-    # 但是 original file 的 links 数需要我来增加
-    if File.objects.filter(digest=file.digest).count() > 1:
-        original_file = File.objects.get(origin=True, digest=file.digest)
-        original_file.links += 1
-        original_file.save()
-    # 文件并没有同 digest 的，那么这个文件就是第一份
-    else:
-        file.origin = True
-
-    file.save()
+    Link.add_one(file)
 
 
 def handle_uploaded_files(files, owner, directory):
@@ -49,6 +40,7 @@ def handle_uploaded_files(files, owner, directory):
         先给一个随机名字，然后一边接收，一边 hash，
         最后用 hash 值来命名文件
     """
+    # import pdb; pdb.set_trace()
     media_dir = get_media_abspath() # 所有文件的绝对路径
 
     for file in files:
@@ -56,15 +48,17 @@ def handle_uploaded_files(files, owner, directory):
         digest = hashlib.sha1()
         temp_filename = os.path.join(media_dir, str(uuid.uuid1())) #　临时文件
         with open(temp_filename, 'wb+') as destination:
-            for chunk in file.chunks(chunk_size=2048):
+
+            for chunk in file.chunks(chunk_size=1024):
                 destination.write(chunk)
+                destination.flush()
                 digest.update(chunk)
 
         digest = digest.hexdigest() # hash 对象转字符串
         abspath = os.path.join(media_dir, digest) # 服务器路径，用于储存
 
         file = File.objects.create( # 返回 file 对象
-            name = file.name.replace('/', ''), # 给用户看的名字，去掉正斜杠，just in case
+            name = re.sub(r'[%/]', '_', file.name), # 给用户看的名字，去掉正斜杠和百分号，just in case
                                                # 亲测 mac 下，名字带正斜杠的文件无法被上传
             owner = owner,
             parent = directory, 

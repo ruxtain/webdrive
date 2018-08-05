@@ -50,8 +50,22 @@ class SignupForm(UserCreationForm):
     )    
     username = forms.CharField(
         label='用户名',
+        min_length = 4,
+        max_length = 12,
         widget=forms.TextInput(attrs={'class': 'input'}),
     )
+    def clean_username(self):
+        ALLOWD_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789'
+        username = self.cleaned_data['username']
+        if len(username) < 4 or len(username) > 12:
+            raise ValidationError('您的用户名必须是 4 到 12 个字符，且只能包含英语字母，下划线或者数字')
+        if not all([char in ALLOWD_CHARS for char in username]):
+            raise ValidationError('您的用户名必须是 4 到 12 个字符，且只能包含英语字母，下划线或者数字')
+        if User.objects.filter(username=username):
+            raise ValidationError('抱歉，该用户名已经被注册')
+        else:
+            return username
+
 
 class UploadForm(forms.Form):
     files = forms.FileField(
@@ -73,8 +87,8 @@ class CreateDirectoryForm(forms.Form):
 
     def clean_name(self):
         name = self.cleaned_data.get('name')
-        if '/' in name:
-            raise ValidationError('抱歉，目录名不可以包含 "/" 正斜杠')
+        if '/' in name or '%' in name:
+            raise ValidationError('抱歉，目录名不可以包含 "/" 或 "%"')
         else:
             return name.strip()
 
@@ -90,8 +104,8 @@ class EditForm(forms.Form):
     )
     def clean_name(self):
         name = self.cleaned_data.get('name')
-        if '/' in name:
-            raise ValidationError('抱歉，文件名不可以包含 "/" 正斜杠')
+        if '/' in name or '%' in name:
+            raise ValidationError('抱歉，文件名不可以包含 "/" 或 "%"')
         else:
             return name.strip()    
 
