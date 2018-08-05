@@ -11,7 +11,8 @@ urlpatterns = [
     url(r'^captcha/', views.captcha, name='captcha'),    
     url(r'^upload/', views.upload, name='upload'),
     url(r'^download/(?P<pk>\d+)', views.download, name='download'),
-    url(r'^mkdir/', views.mkdir, name='mkdir'), # 创建目录
+    url(r'^(?P<pk>\d+)/mkdir/', views.mkdir, name='mkdir'), # 创建目录
+    url(r'^(?P<pk>\d+)/rmdir/', views.rmdir, name='rmdir'), # 递归地删除目录
     url(r'^(?P<pk>\d+)/edit', views.edit, name='edit'), # 编辑文件
     url(r'^(?P<pk>\d+)/delete', views.delete, name='delete'), # 编辑文件
     # 既是文件详情页，又是目录的详情页

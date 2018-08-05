@@ -1,0 +1,27 @@
+{% extends "myapp/base.html" %}
+{% load static %}
+
+{% block meta %}
+    <meta page="edit.html">
+{% endblock%}
+
+{% block title %}删除确认{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'myapp/css/edit.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="inner-wrapper">
+    <h2>您确认要删除目录 <a class="directory" href="{{ directory.get_url }}">{{ directory.get_url }}</a></h2>
+    <h3>它下面的所有文件和子目录、子目录的文件都会被统统删除，且无法恢复。</h3>
+    <form method="POST" action="{% url 'myapp:rmdir' directory.pk %}">
+    {% csrf_token %}
+    <table>
+    {{ form }}
+    </table>
+    <br>
+    <button class="btn">确定</button>
+    </form>
+</div>
+{% endblock %}

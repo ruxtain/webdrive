@@ -107,7 +107,17 @@ class EditForm(forms.Form):
         if '/' in name or '%' in name:
             raise ValidationError('抱歉，文件名不可以包含 "/" 或 "%"')
         else:
-            return name.strip()    
+            return name.strip() 
+
+class ConfirmForm(forms.Form):
+    """
+        只是用于在重大操作之前进行提示的
+    """   
+    confirm = forms.ChoiceField(
+        label = '您的选择是',
+        choices = (('y', '我确实想删除'), ('n', '我只是手滑...')),
+        widget=forms.RadioSelect()
+    )
 
 
 

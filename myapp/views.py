@@ -11,7 +11,7 @@ from .utils import get_captcha_image, get_captcha_text
 from .handles import (handle_uploaded_files, set_captcha_to_session,
                       get_session_data, set_session_data)
 from .forms import (LoginForm, SignupForm, UploadForm, 
-                    EditForm, CreateDirectoryForm)
+                    EditForm, CreateDirectoryForm, ConfirmForm)
 from .models import Directory, File, Link, get_media_abspath
 
 import mimetypes
@@ -70,35 +70,6 @@ def detail(request, username, path=''):
         raise Http404
 
     return render(request, 'myapp/index.html', context)
-
-
-
-@login_required
-def mkdir(request):
-    """
-        创建目录
-    """
-    pk = get_session_data(request, 'directory')
-    current_dir = Directory.objects.get(pk=pk)
-
-    user = request.user
-
-    if request.method == 'GET':
-        form = CreateDirectoryForm()
-
-    elif request.method == 'POST':
-        form = CreateDirectoryForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            new_dir = Directory.objects.create(
-                name = name,
-                owner = user,
-                parent = current_dir,
-                path = os.path.join(current_dir.path, name),
-            )
-            # 作为 url 参数的时候，去掉最开头的 '/' ，以免变成 username//test 难看
-            return redirect('myapp:detail', username=user.username, path=new_dir.path)
-    return render(request, 'myapp/mkdir.html', {'form': form, 'directory': current_dir})
 
 
 def login(request):
@@ -177,6 +148,61 @@ def captcha(request):
     cap_stream = BytesIO()
     cap_img.save(cap_stream, format='png')
     return HttpResponse(cap_stream.getvalue(), content_type="image/png")
+
+###################
+####  目录操作  ####
+###################
+
+@login_required
+def mkdir(request, pk):
+    """
+        创建目录
+    """
+
+    current_dir = Directory.objects.get(pk=pk)
+
+    user = request.user
+
+    if request.method == 'GET':
+        form = CreateDirectoryForm()
+
+    elif request.method == 'POST':
+        form = CreateDirectoryForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            new_dir = Directory.objects.create(
+                name = name,
+                owner = user,
+                parent = current_dir,
+                path = os.path.join(current_dir.path, name),
+            )
+            # 作为 url 参数的时候，去掉最开头的 '/' ，以免变成 username//test 难看
+            return redirect('myapp:detail', username=user.username, path=new_dir.path)
+    return render(request, 'myapp/mkdir.html', {'form': form, 'directory': current_dir})
+
+@login_required
+def rmdir(request, pk):
+    """ 删除目录和下面的文件、子目录 """
+    directory = get_object_or_404(Directory, pk=pk)
+    parent = directory.parent
+
+    if request.method == 'GET':
+        form = ConfirmForm()
+        return render(request, 'myapp/confirm.html', {'directory': directory, 'form': form})
+
+    elif request.method == 'POST':
+        form = ConfirmForm(request.POST)
+        if form.is_valid():
+            confirm = form.cleaned_data['confirm']
+            if confirm == 'y':
+                directory.rmdir()
+                if parent: 
+                    return redirect(parent.get_url())
+                else: # parent 是空，说明用户删除了整个家目录，那么回首页并创建一个空的家目录
+                    return redirect('myapp:index')
+            else:
+                return redirect(directory.get_url())
+
 
 ###################
 ####  文件操作  ####

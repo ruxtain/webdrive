@@ -43,6 +43,19 @@ class Directory(models.Model):
     def get_url(self):
         return '/{}/{}'.format(self.owner.username, self.path)
 
+    def rmdir(self):
+        """
+            删除子目录和子目录下的文件，以及自身包含的文件和自身
+        """
+        for subdir in Directory.objects.filter(parent=self):
+            for file in subdir.file_set.all():
+                Link.minus_one(file)
+
+        for file in self.file_set.all():
+            Link.minus_one(file)
+
+        self.delete()
+
 
 class File(models.Model):
     """

@@ -13,8 +13,8 @@
 
 {% block body %}
 <div class="inner-wrapper">
-    <h2>创建子目录到 <a class="directory" href="{{ directory.get_url }}">{{ directory.name }}</a> 目录下：</h2>
-    <form method="POST" action="{% url 'myapp:mkdir' %}">
+    <h2>创建子目录到 <a class="directory" href="{{ directory.get_url }}">{{ directory.get_url }}</a> 目录下：</h2>
+    <form method="POST" action="{% url 'myapp:mkdir' directory.pk %}">
     {% csrf_token %}
     <table>
     {{ form }}

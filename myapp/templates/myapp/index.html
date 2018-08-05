@@ -23,11 +23,12 @@
             <span class="user-info"><a href="{% url 'myapp:logout' %}">登出</a></span>
             <span class="user-info">|</span>
             {% if is_file %}
-                <span class="user-info"><a href="{% url 'myapp:edit' file.pk %}">编辑</a></span>
+                <span class="user-info"><a href="{% url 'myapp:edit' file.pk %}">重命名</a></span>
                 <span class="user-info"><a href="{% url 'myapp:download' file.pk %}">下载</a></span>
                 <span class="user-info"><a href="{% url 'myapp:delete' file.pk %}">删除</a></span>
             {% else %}
-                <span class="user-info"><a href="{% url 'myapp:mkdir' %}">新建目录</a></span>    
+                <span class="user-info"><a href="{% url 'myapp:mkdir' directory.pk %}">新建</a></span>
+                <span class="user-info"><a href="{% url 'myapp:rmdir' directory.pk %}">删除</a></span>
             {% endif %}
         </p>
     </div>
@@ -45,7 +46,7 @@
     {% endif %}
 
     <div class="dir-info">
-        <span>您的位置：</span>
+        <span>「{% if is_file %}文件{% else %}目录{% endif %}」：</span>
         <span>
             / <a href="{% url 'myapp:index' %}">{{ user.username }}</a>
             {% if is_file %}
