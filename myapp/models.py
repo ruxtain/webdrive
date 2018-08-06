@@ -70,11 +70,6 @@ class File(models.Model):
                 如果对应的话，那么多个File对象映射同一个文件时，下载路径按照 path 来会出错
                 此外，path 需要包含用户的根目录，如 user_12，否则用户无法引用到其他用户的文件
                 文件的 path 不应该包括文件名，否则会造成改 name 时 path 不能一起改
-
-        links:  被引用的次数，无人使用时才删除
-        origin: 是否为第一份文件。计数器都只作用于第一份文件，其他的同 digest 的文件都是硬链接
-                如果删除，只将 origin 的 links 减一。
-                不过有个问题，那就是硬链接文件的 links 这一栏用不上。
     """
 
     name = models.CharField(max_length=256)

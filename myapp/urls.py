@@ -17,5 +17,5 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/delete', views.delete, name='delete'), # 编辑文件
     # 既是文件详情页，又是目录的详情页
     # 因为可以容纳的 URL pattern 类型非常多，所以一定要放到最后
-    url(r'^(?P<username>[\da-zA-Z]+)/(?P<path>.*)', views.detail, name='detail'),    
+    url(r'^(?P<username>[_\da-zA-Z]+)/(?P<path>.*)', views.detail, name='detail'),    
 ]

@@ -52,9 +52,7 @@ def detail(request, username, path=''):
             File.path 不含文件名
             detail(path) 包含了文件名，因为是 URL
     """
-
     user = get_object_or_404(User, username=username)
-
     file = File.objects.filter(owner=user, path=os.path.dirname(path), name=os.path.basename(path))
     directory = Directory.objects.filter(owner=user, path=path)
     form = UploadForm()
@@ -66,9 +64,14 @@ def detail(request, username, path=''):
         directory = directory[0]
         set_session_data(request, 'directory', directory.pk)
         context = {'user': user, 'form': form, 'directory': directory, 'is_file': False}
+    elif directory.count() == 0: # 主目录被删了，自动新建
+        directory = Directory.create_root_dir(user)
+        context = {'user': user, 'form': form, 'directory': directory, 'is_file': False}
     else:
+        import pdb; pdb.set_trace()
         raise Http404
 
+    
     return render(request, 'myapp/index.html', context)
 
 
@@ -188,7 +191,12 @@ def rmdir(request, pk):
 
     if request.method == 'GET':
         form = ConfirmForm()
-        return render(request, 'myapp/confirm.html', {'directory': directory, 'form': form})
+        context = {
+            'directory': directory, 
+            'form': form,
+            'is_file': False,
+        }
+        return render(request, 'myapp/confirm.html', context)
 
     elif request.method == 'POST':
         form = ConfirmForm(request.POST)
@@ -270,15 +278,23 @@ def edit(request, pk):
 @login_required
 def delete(request, pk):
     """
-        只是一个动作，不提供页面。表单由 edit view 提供。
+        提供一个页面，让用户确认
     """
-    dir_pk = get_session_data(request, 'directory')
-    directory = Directory.objects.get(pk=dir_pk)
-
     file = get_object_or_404(File, pk=pk)
-    Link.minus_one(file) # 里面包含了删除动作
+    directory = file.parent
+    # import pdb; pdb.set_trace()
+    if request.method == 'POST':
+        form = ConfirmForm(request.POST)
+        if form.is_valid():
+            confirm = form.cleaned_data['confirm']
+            if confirm == 'y':
+                Link.minus_one(file) # 里面包含了删除动作
+                return redirect(directory.get_url())
+            else:
+                return redirect(directory.get_url())
+    form = ConfirmForm()
+    return render(request, 'myapp/confirm.html', {'file': file, 'form': form, 'is_file': True})                
 
-    return redirect(directory.get_url())
 
 
 
