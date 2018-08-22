@@ -27,7 +27,7 @@ table.file tr td:first-child,table.file tr td:first-child{width:200px;}
 table.file th {text-align: left; background-color: #efefef;}
 div.buttons {float:left;}
 
-
+div.preview img {max-width:600px;}
 
 a.directory { color: #66f; font-weight: bold; }
 a.file { color: #333; }

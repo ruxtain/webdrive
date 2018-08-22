@@ -5,12 +5,16 @@ app_name = 'myapp'
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+
+    url(r'^test/', views.test, name='test'),
+
     url(r'^signup/', views.signup, name='signup'),
     url(r'^login/', views.login, name='login'),
     url(r'^logout/', views.logout, name='logout'),
     url(r'^captcha/', views.captcha, name='captcha'),    
     url(r'^upload/', views.upload, name='upload'),
     url(r'^download/(?P<pk>\d+)', views.download, name='download'),
+    url(r'^preview/(?P<pk>\d+)', views.preview, name='preview'),
     url(r'^(?P<pk>\d+)/mkdir/', views.mkdir, name='mkdir'), # 创建目录
     url(r'^(?P<pk>\d+)/rmdir/', views.rmdir, name='rmdir'), # 递归地删除目录
     url(r'^(?P<pk>\d+)/edit', views.edit, name='edit'), # 编辑文件

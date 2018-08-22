@@ -19,9 +19,17 @@ from io import BytesIO
 from urllib.parse import quote
 import os
 
+# you need 'brew install libmagic' under Mac OS
+import magic
+
 """
     根目录用 '' 表示，以去除 URL 中多余的 / 符号
 """
+
+def test(request):
+    """ 专门用于测试的页面 """
+    return HttpResponse('<h1>Test successful.</h1>')
+
 
 # 这里的参数直接相当于用来 reverse 了，就不要再在 login_url 里用 reverse了
 @login_required
@@ -236,25 +244,43 @@ def upload(request):
 
 @login_required
 def download(request, pk):
-    """
+    """ 一般是下载，当附带 preview=True query string 时为预览 """    
 
-    """    
     file = get_object_or_404(File, pk=pk)
     buf = open(file.get_full_path(), 'rb')
-    response = HttpResponse(buf)
-    filetype = mimetypes.guess_type(file.name)[0]
-    if not filetype: # 无法识别的我就默认说它是二进制流
-        filetype = 'application/octet-stream'    
-    response['Content-Type'] = 'application/force-download'
+    response = HttpResponse(buf)   
     response['Content-Length'] = str(file.size)
-    response['Content-Disposition'] = 'attachment; filename={}'.format(quote(file.name))
+
+    if request.GET.get('preview'):
+        filetype = mimetypes.guess_type(file.name)[0]
+        if not filetype:
+           filetype = 'application/octet-stream'   
+        response['Content-Type'] = filetype
+    else:
+        response['Content-Type'] = 'application/force-download'
+        response['Content-Disposition'] = 'attachment; filename={}'.format(quote(file.name))
     return response
 
 
 @login_required
-def edit(request, pk):
+def preview(request, pk):
+    """ 预览文件 
+        Query String:
+        默认是预览摘要（缩略图）: thumbnail=True
+        点击后预览全文（大图）: preview=True
     """
-        暂时只支持编辑文件名
+
+    file = get_object_or_404(File, pk=pk)
+    if 'image' in magic.from_file(file.get_full_path()):
+        if request.GET.get('thumbnail'):
+            return HttpResponse("""<a target='_blank' href='{a}/{b}?preview=True'><img src="{a}/{b}">""".format(a='/download', b=pk))
+    else:
+        return HttpResponse('<p>Sorry啦，这个文件不能预览</p>')
+
+
+@login_required
+def edit(request, pk):
+    """ 暂时只支持编辑文件名
         todo: 支持移动路径、是否共享
     """
 
@@ -275,11 +301,11 @@ def edit(request, pk):
     context = {'form': form, 'file': file}
     return render(request, 'myapp/edit.html', context)
 
+
 @login_required
 def delete(request, pk):
-    """
-        提供一个页面，让用户确认
-    """
+    """ 提供一个页面，让用户确认 """
+
     file = get_object_or_404(File, pk=pk)
     directory = file.parent
     # import pdb; pdb.set_trace()

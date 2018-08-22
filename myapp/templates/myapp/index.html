@@ -60,8 +60,7 @@
     <div class="file-info">
 
         {% if is_file %}
-                <div class="preview">
-
+                <div class="preview" id="preview">
                     
                 </div>
                 <table class="file" align="left">
@@ -109,6 +108,16 @@
 {% endblock %}
 
 {% block script %}
+<script type="text/javascript" src="{% static 'myapp/js/jquery-3.3.1.js' %}"></script>
+<script type="text/javascript">
+
+$(function(){
+            $.get("/preview/{{ file.pk }}?thumbnail=True", 
+                function(result) {
+                    $("#preview").html(result);
+            });
+});
+</script>
     {% if not is_file %}
         <script type="text/javascript" src="{% static 'myapp/js/upload.js' %}"></script>
     {% endif %}
