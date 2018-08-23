@@ -271,9 +271,14 @@ def preview(request, pk):
     """
 
     file = get_object_or_404(File, pk=pk)
-    if 'image' in magic.from_file(file.get_full_path()):
-        if request.GET.get('thumbnail'):
-            return HttpResponse("""<a target='_blank' href='{a}/{b}?preview=True'><img src="{a}/{b}">""".format(a='/download', b=pk))
+    magic_type = magic.from_file(file.get_full_path())
+    if request.GET.get('thumbnail'):
+        if 'image' in magic_type:
+            response = "<a target='_blank' href='{a}/{b}?preview=True'><img src='{a}/{b}''>".format(a='/download', b=pk)
+            return HttpResponse(response)
+        elif 'UTF-8 Unicode text' in magic_type:
+            response = "<h2>{} 摘要</h2><p>{} ... ...</p>".format(file.name, open(file.get_full_path()).read(1000))
+            return HttpResponse(response)
     else:
         return HttpResponse('<p>Sorry啦，这个文件不能预览</p>')
 
